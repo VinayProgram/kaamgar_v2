@@ -2,9 +2,10 @@ import { Inject, Injectable } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
 import { DATABASE_CONNECTION, Database } from '../../db/database-connection.module';
 import {
-    serviceProviderSkills, ServiceProviderSkill, NewServiceProviderSkill,
-    skills, Skill, NewSkill
+    serviceProviderSkills, ServiceProviderSkill, NewServiceProviderSkill
 } from '../../db/schemas/service-marketplace.schema';
+import { skills, Skill, NewSkill } from '../../db/schemas/skills.schema';
+
 
 @Injectable()
 export class SkillCoreService {

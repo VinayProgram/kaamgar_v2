@@ -1,6 +1,12 @@
 import { pgTable, uuid, text, varchar, timestamp, decimal, integer, smallint, boolean, primaryKey, index, customType, geometry, unique } from "drizzle-orm/pg-core";
 import { serviceUsers } from "./service-users.schema";
 import { users } from "./user.schema";
+import { serviceCategories } from "./categories.schema";
+import { skills } from "./skills.schema";
+
+export { serviceCategories, ServiceCategory, NewServiceCategory } from "./categories.schema";
+export { skills, Skill, NewSkill } from "./skills.schema";
+
 
 // 1. Service Provider Profiles
 export const serviceProviderProfiles = pgTable("service_provider_profiles", {
@@ -28,26 +34,6 @@ export const serviceProviderProfiles = pgTable("service_provider_profiles", {
 }, (table) => [
     index("idx_sp_profile_user_id").on(table.serviceUserId),
 ]);
-
-// 2. Service Categories
-export const serviceCategories = pgTable("service_categories", {
-    id: uuid("id").defaultRandom().primaryKey(),
-    name: varchar("name", { length: 100 }).unique().notNull(),
-    slug: varchar("slug", { length: 100 }).unique().notNull(),
-    description: text("description"),
-    parentCategoryId: uuid("parent_category_id").references((): any => serviceCategories.id, { onDelete: 'set null' }),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-// 2.5 Master Skills Table
-export const skills = pgTable("skills", {
-    id: uuid("id").defaultRandom().primaryKey(),
-    name: varchar("name", { length: 100 }).unique().notNull(),
-    slug: varchar("slug", { length: 100 }).unique().notNull(),
-    description: text("description"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
 
 // 3. Category Mapping (Many-to-Many)
 export const serviceProviderCategoryMap = pgTable("service_provider_category_map", {
@@ -130,18 +116,11 @@ export const serviceProviderCurrentLocation = pgTable("service_provider_current_
 export type ServiceProviderProfile = typeof serviceProviderProfiles.$inferSelect;
 export type NewServiceProviderProfile = typeof serviceProviderProfiles.$inferInsert;
 
-export type ServiceCategory = typeof serviceCategories.$inferSelect;
-export type NewServiceCategory = typeof serviceCategories.$inferInsert;
-
 export type ServiceProviderCategoryMap = typeof serviceProviderCategoryMap.$inferSelect;
 export type NewServiceProviderCategoryMap = typeof serviceProviderCategoryMap.$inferInsert;
 
-export type Skill = typeof skills.$inferSelect;
-export type NewSkill = typeof skills.$inferInsert;
-
 export type ServiceProviderSkill = typeof serviceProviderSkills.$inferSelect;
 export type NewServiceProviderSkill = typeof serviceProviderSkills.$inferInsert;
-
 
 export type ServiceProviderRating = typeof serviceProviderRatings.$inferSelect;
 export type NewServiceProviderRating = typeof serviceProviderRatings.$inferInsert;

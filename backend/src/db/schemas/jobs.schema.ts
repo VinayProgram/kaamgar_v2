@@ -1,7 +1,9 @@
 import { pgTable, uuid, text, varchar, timestamp, decimal, integer, pgEnum, geometry, index, unique, check, smallint, boolean } from "drizzle-orm/pg-core";
 import { users } from "./user.schema";
 import { serviceUsers } from "./service-users.schema";
-import { serviceCategories, skills } from "./service-marketplace.schema";
+import { serviceCategories } from "./categories.schema";
+import { skills } from "./skills.schema";
+
 
 import { sql } from "drizzle-orm";
 

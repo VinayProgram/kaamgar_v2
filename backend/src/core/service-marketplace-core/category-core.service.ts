@@ -2,9 +2,10 @@ import { Inject, Injectable } from '@nestjs/common';
 import { eq, and } from 'drizzle-orm';
 import { DATABASE_CONNECTION, Database } from '../../db/database-connection.module';
 import {
-    serviceCategories, ServiceCategory, NewServiceCategory,
     serviceProviderCategoryMap, ServiceProviderCategoryMap, NewServiceProviderCategoryMap
 } from '../../db/schemas/service-marketplace.schema';
+import { serviceCategories, ServiceCategory, NewServiceCategory } from '../../db/schemas/categories.schema';
+
 
 @Injectable()
 export class CategoryCoreService {
