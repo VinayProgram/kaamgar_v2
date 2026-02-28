@@ -1,20 +1,11 @@
 import { pgTable, uuid, text, varchar, timestamp, pgEnum, boolean } from "drizzle-orm/pg-core";
 
-/**
- * Enum for user roles: consumer or service-provider
- */
 export const consumerTypeEnum = pgEnum("consumer_type", ["consumer", "service-provider"]);
 
-/**
- * Users table schema for registration and authentication
- */
-export const register_users = pgTable("register_users", {
+export const users = pgTable("users", {
     id: uuid("id").defaultRandom().primaryKey(),
-
-    // Name fields as requested
     firstName: varchar("first_name", { length: 255 }).notNull(),
     lastName: varchar("last_name", { length: 255 }).notNull(),
-    // Contact and Identity
     email: varchar("email", { length: 255 }).unique().notNull(),
     phoneNumber: varchar("phone_number", { length: 20 }).unique(),
 
@@ -37,5 +28,6 @@ export const register_users = pgTable("register_users", {
     lastLoginAt: timestamp("last_login_at"),
 });
 
-export type RegisterUser = typeof register_users.$inferSelect;
-export type NewRegisterUser = typeof register_users.$inferInsert;
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+

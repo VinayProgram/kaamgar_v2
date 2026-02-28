@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
 import { DATABASE_CONNECTION, Database } from '../../db/database-connection.module';
-import { register_users, RegisterUser, NewRegisterUser } from '../../db/schemas/user-register.schema';
 import { BcryptUtil } from '../../common/bcrypt/bcrypt.util';
+import { NewUser, User, users } from '../../db/schemas/user.schema';
 
 @Injectable()
-export class UserRegisterCoreService {
+export class UserCoreService {
     constructor(
         @Inject(DATABASE_CONNECTION) private readonly db: Database
     ) { }
@@ -13,7 +13,7 @@ export class UserRegisterCoreService {
     /**
      * Create a new user with password hashing
      */
-    async create(data: NewRegisterUser): Promise<RegisterUser> {
+    async create(data: NewUser): Promise<User> {
         const userData = { ...data };
 
         // Hash password if it exists (for email/password registration)
@@ -22,7 +22,7 @@ export class UserRegisterCoreService {
         }
 
         const [newUser] = await this.db
-            .insert(register_users)
+            .insert(users)
             .values(userData)
             .returning();
 
@@ -32,36 +32,36 @@ export class UserRegisterCoreService {
     /**
      * Get all registered users
      */
-    async findAll(): Promise<RegisterUser[]> {
-        return this.db.select().from(register_users);
+    async findAll(): Promise<User[]> {
+        return this.db.select().from(users);
     }
 
     /**
      * Find a user by ID
      */
-    async findById(id: string): Promise<RegisterUser | undefined> {
+    async findById(id: string): Promise<User | undefined> {
         const [user] = await this.db
             .select()
-            .from(register_users)
-            .where(eq(register_users.id, id));
+            .from(users)
+            .where(eq(users.id, id));
         return user;
     }
 
     /**
      * Find a user by email
      */
-    async findByEmail(email: string): Promise<RegisterUser | undefined> {
+    async findByEmail(email: string): Promise<User | undefined> {
         const [user] = await this.db
             .select()
-            .from(register_users)
-            .where(eq(register_users.email, email));
+            .from(users)
+            .where(eq(users.email, email));
         return user;
     }
 
     /**
      * Update a user's information
      */
-    async update(id: string, data: Partial<NewRegisterUser>): Promise<RegisterUser | undefined> {
+    async update(id: string, data: Partial<NewUser>): Promise<User | undefined> {
         const updateData = { ...data, updatedAt: new Date() };
 
         // Hash password if it's being updated
@@ -70,9 +70,9 @@ export class UserRegisterCoreService {
         }
 
         const [updatedUser] = await this.db
-            .update(register_users)
+            .update(users)
             .set(updateData)
-            .where(eq(register_users.id, id))
+            .where(eq(users.id, id))
             .returning();
 
         return updatedUser;
@@ -83,10 +83,11 @@ export class UserRegisterCoreService {
      */
     async delete(id: string): Promise<boolean> {
         const result = await this.db
-            .delete(register_users)
-            .where(eq(register_users.id, id))
+            .delete(users)
+            .where(eq(users.id, id))
             .returning();
 
         return result.length > 0;
     }
 }
+

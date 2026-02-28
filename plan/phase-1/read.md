@@ -2,4 +2,10 @@
 
 --
 database schema for the user auth register user 
-lets see consumer and service provider auth 
+
+
+users table 
+
+id and user-register-fkey validation requi 
+
+admin login consumer login service provider login 
