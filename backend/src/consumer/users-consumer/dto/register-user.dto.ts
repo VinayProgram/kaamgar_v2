@@ -5,7 +5,7 @@ export const RegisterUserSchema = z.object({
     lastName: z.string().min(1, 'Last name is required'),
     email: z.string().email('Invalid email address'),
     phoneNumber: z.string().optional(),
-    consumerType: z.enum(['consumer', 'service-provider']).default('consumer'),
+
 
     // standard registration
     password: z.string().min(6, 'Password must be at least 6 characters').optional(),

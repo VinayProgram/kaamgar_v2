@@ -5,13 +5,13 @@ import { BcryptUtil } from '../../common/bcrypt/bcrypt.util';
 import { NewUser, User, users } from '../../db/schemas/user.schema';
 
 @Injectable()
-export class UserCoreService {
+export class ConsumerCoreService {
     constructor(
         @Inject(DATABASE_CONNECTION) private readonly db: Database
     ) { }
 
     /**
-     * Create a new user with password hashing
+     * Create a new consumer user with password hashing
      */
     async create(data: NewUser): Promise<User> {
         const userData = { ...data };
@@ -30,14 +30,14 @@ export class UserCoreService {
     }
 
     /**
-     * Get all registered users
+     * Get all registered consumers
      */
     async findAll(): Promise<User[]> {
         return this.db.select().from(users);
     }
 
     /**
-     * Find a user by ID
+     * Find a consumer by ID
      */
     async findById(id: string): Promise<User | undefined> {
         const [user] = await this.db
@@ -48,7 +48,7 @@ export class UserCoreService {
     }
 
     /**
-     * Find a user by email
+     * Find a consumer by email
      */
     async findByEmail(email: string): Promise<User | undefined> {
         const [user] = await this.db
@@ -59,7 +59,7 @@ export class UserCoreService {
     }
 
     /**
-     * Update a user's information
+     * Update a consumer's information
      */
     async update(id: string, data: Partial<NewUser>): Promise<User | undefined> {
         const updateData = { ...data, updatedAt: new Date() };
@@ -79,7 +79,7 @@ export class UserCoreService {
     }
 
     /**
-     * Delete a user
+     * Delete a consumer
      */
     async delete(id: string): Promise<boolean> {
         const result = await this.db
@@ -90,4 +90,3 @@ export class UserCoreService {
         return result.length > 0;
     }
 }
-

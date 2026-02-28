@@ -3,7 +3,6 @@ import { APP_GUARD } from '@nestjs/core';
 import { DatabaseConnectionModule } from './db/database-connection.module';
 import { ConsumerModule } from './consumer/consumer.module';
 import { ServiceProviderModule } from './service-provider/service-provider.module';
-import { UserModule } from './users/user.module';
 import { AuthGuard } from './common/guards/auth.guard';
 
 @Module({
@@ -11,9 +10,7 @@ import { AuthGuard } from './common/guards/auth.guard';
     DatabaseConnectionModule,
     ConsumerModule,
     ServiceProviderModule,
-    UserModule,
   ],
-
   controllers: [],
   providers: [
     {

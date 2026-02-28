@@ -1,6 +1,6 @@
 import { pgTable, uuid, text, varchar, timestamp, pgEnum, boolean } from "drizzle-orm/pg-core";
 
-export const users = pgTable("users", {
+export const serviceUsers = pgTable("service_users", {
     id: uuid("id").defaultRandom().primaryKey(),
     firstName: varchar("first_name", { length: 255 }).notNull(),
     lastName: varchar("last_name", { length: 255 }).notNull(),
@@ -22,6 +22,6 @@ export const users = pgTable("users", {
     lastLoginAt: timestamp("last_login_at"),
 });
 
-export type User = typeof users.$inferSelect;
-export type NewUser = typeof users.$inferInsert;
+export type ServiceUser = typeof serviceUsers.$inferSelect;
+export type NewServiceUser = typeof serviceUsers.$inferInsert;
 
