@@ -5,11 +5,15 @@ import {
     UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { JwtService } from '@nestjs/jwt';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-    constructor(private reflector: Reflector) { }
+    constructor(
+        private reflector: Reflector,
+        private jwtService: JwtService,
+    ) { }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
@@ -22,26 +26,31 @@ export class AuthGuard implements CanActivate {
         }
 
         const request = context.switchToHttp().getRequest();
+        const url = request.url;
+        const isServiceProvider = request.cookies?.provider_access_token;
 
-        // TODO: Implement your authentication logic here
-        // Example: Check for a JWT token in the header or cookie
-        // const token = this.extractTokenFromHeader(request);
-        // if (!token) {
-        //   throw new UnauthorizedException();
-        // }
-        // try {
-        //   const payload = await this.jwtService.verifyAsync(token, { secret: '...' });
-        //   request['user'] = payload;
-        // } catch {
-        //   throw new UnauthorizedException();
-        // }
+        // Select the appropriate cookie name and secret
+        const cookieName = isServiceProvider ? 'provider_access_token' : 'consumer_access_token';
+        const secret = isServiceProvider
+            ? process.env.SERVICE_PROVIDER_JWT_SECRET
+            : process.env.CONSUMER_JWT_SECRET;
 
-        // For now, let's just deny access to non-public routes so you can see it working
-        // You can change this to 'return true' temporarily if you are still developing
-        const isAuthenticated = !!request.cookies['access_token'] || !!request.headers['authorization'];
+        // 2. Extract token from Header or Cookie
+        const token = request.cookies?.[cookieName];
 
-        if (!isAuthenticated) {
-            throw new UnauthorizedException('This route is protected. Please provide a valid token.');
+        if (!token) {
+            throw new UnauthorizedException('No token found');
+        }
+
+        try {
+            // 3. Verify with the specific secret
+            const payload = await this.jwtService.verifyAsync(token, { secret });
+
+            // 💡 Attach payload to request for controllers to use
+            request['user'] = payload;
+
+        } catch (err) {
+            throw new UnauthorizedException('Invalid or expired token');
         }
 
         return true;
