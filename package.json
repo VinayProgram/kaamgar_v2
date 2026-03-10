@@ -1,0 +1,13 @@
+{
+  "name": "kaamgar-v2",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n \"BACKEND,CLIENT\" -c \"blue,green\" \"pnpm run dev:backend\" \"pnpm run dev:client\"",
+    "dev:backend": "pnpm --filter backend start:dev",
+    "dev:client": "pnpm --filter client dev",
+    "install:all": "pnpm install"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
