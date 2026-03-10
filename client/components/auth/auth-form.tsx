@@ -1,7 +1,6 @@
 "use client"
-
-import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
 import { loginSchema, signUpSchema, type LoginValues, type SignUpValues } from "@/lib/validations/auth"
 import { Button } from "@/components/ui/button"
 import {
@@ -24,11 +23,11 @@ interface AuthFormProps {
 
 export function AuthForm({ type, userType }: AuthFormProps) {
   const schema = type === "signin" ? loginSchema : signUpSchema
-  
+
   const form = useForm<any>({
     resolver: zodResolver(schema),
-    defaultValues: type === "signin" 
-      ? { email: "", password: "" } 
+    defaultValues: type === "signin"
+      ? { email: "", password: "" }
       : { name: "", email: "", password: "", confirmPassword: "" },
   })
 
@@ -38,13 +37,13 @@ export function AuthForm({ type, userType }: AuthFormProps) {
   }
 
   const title = type === "signin" ? "Sign In" : "Create an Account"
-  const description = userType === "kaamgar" 
-    ? "Join as a Service Provider to find work" 
+  const description = userType === "kaamgar"
+    ? "Join as a Service Provider to find work"
     : "Join as a Customer to find services"
-  
+
   const oppositeType = type === "signin" ? "signup" : "signin"
-  const footerText = type === "signin" 
-    ? "Don't have an account?" 
+  const footerText = type === "signin"
+    ? "Don't have an account?"
     : "Already have an account?"
   const footerLinkText = type === "signin" ? "Sign Up" : "Sign In"
   const footerLink = `/auth/${userType}/${oppositeType}`

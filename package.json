@@ -8,6 +8,7 @@
     "install:all": "pnpm install"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "concurrently": "^9.1.2",
+    "vercel": "^50.29.0"
   }
 }
