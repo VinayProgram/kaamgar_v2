@@ -39,6 +39,12 @@ export function Navbar() {
             <Link href="#why-choose-us" className="text-muted-foreground hover:text-brand-navy transition-colors">
               Why Us
             </Link>
+            <Link href="/consumers" className="text-muted-foreground hover:text-brand-navy transition-colors font-bold text-blue-600">
+              Customer Portal
+            </Link>
+            <Link href="/service-provider" className="text-muted-foreground hover:text-brand-navy transition-colors font-bold text-indigo-600">
+              Provider Portal
+            </Link>
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
