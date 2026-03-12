@@ -51,8 +51,8 @@ export function Navbar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="gap-2 border-brand-navy text-brand-navy hover:bg-brand-navy/5">
-                   <User className="h-4 w-4" />
-                   Login
+                  <User className="h-4 w-4" />
+                  Login
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
@@ -60,17 +60,17 @@ export function Navbar() {
                   <Link href="/auth/consumer/signin" className="w-full">Sign In as Customer</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem className="cursor-pointer">
-                  <Link href="/auth/kaamgar/signin" className="w-full">Sign In as Professional</Link>
+                  <Link href="/auth/service-provider/signin" className="w-full">Sign In as Professional</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem className="cursor-pointer border-t mt-1 pt-1">
                   <Link href="/auth/consumer/signup" className="w-full text-blue-600 font-semibold">Join as Customer</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem className="cursor-pointer">
-                  <Link href="/auth/kaamgar/signup" className="w-full text-blue-600 font-semibold">Join as Professional</Link>
+                  <Link href="/auth/service-provider/signup" className="w-full text-blue-600 font-semibold">Join as Professional</Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            
+
             <Button size="sm" className="bg-brand-navy hover:bg-brand-navy-light text-white shadow-md">
               Post a Job
             </Button>
@@ -78,9 +78,9 @@ export function Navbar() {
 
           {/* Mobile Menu Button */}
           <div className="flex md:hidden items-center">
-             <Button variant="ghost" size="icon" onClick={() => setIsOpen(!isOpen)}>
-                <Menu className="h-6 w-6" />
-             </Button>
+            <Button variant="ghost" size="icon" onClick={() => setIsOpen(!isOpen)}>
+              <Menu className="h-6 w-6" />
+            </Button>
           </div>
         </div>
       </div>

@@ -31,7 +31,7 @@ export function AuthForm({ type, userType }: AuthFormProps) {
   const form = useForm<any>({
     resolver: zodResolver(schema),
     defaultValues: type === "signin"
-      ? { email: "", password: "" }
+      ? { email: "", password: "", registrationType: userType }
       : { firstName: "", lastName: "", email: "", password: "", confirmPassword: "", registrationType: userType, phoneNumber: "" },
   })
   console.log(form.getValues())

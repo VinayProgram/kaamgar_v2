@@ -4,6 +4,7 @@ import { Response } from 'express';
 import { LoginDto } from './dto/login.dto';
 import { NewUser, User } from 'src/db/schema';
 import { AuthCoreService } from 'src/core/auth-core/auth-core.service';
+import { AuthCoreUtilsService } from 'src/core/auth-core/auth-core-utils.service';
 import { BcryptUtil } from 'src/common/bcrypt/bcrypt.util';
 
 @Injectable()
@@ -11,15 +12,17 @@ export class AuthService {
     constructor(
         private readonly jwtService: JwtService,
         private readonly authCoreService: AuthCoreService,
+        private readonly authCoreUtilsService: AuthCoreUtilsService,
     ) { }
 
     async registerUser(data: NewUser): Promise<User> {
         return this.authCoreService.create(data);
     }
 
-    async login(loginDto: LoginDto, response: Response): Promise<User> {
+    async login(loginDto: LoginDto, req: Request, response: Response): Promise<User> {
         const user = await this.authCoreService.findByEmail(loginDto.email);
-        if (!user || !user.password) {
+
+        if (!user || !user.password || !user.registrationType || user.registrationType !== loginDto.registrationType) {
             throw new UnauthorizedException('Invalid credentials');
         }
 
@@ -27,19 +30,22 @@ export class AuthService {
         if (!isMatch) {
             throw new UnauthorizedException('Invalid credentials');
         }
-
+        const secret = user.registrationType == 'user' ? process.env.CONSUMER_JWT_SECRET : process.env.SERVICE_PROVIDER_JWT_SECRET;
         // Sign the token
         const token = await this.jwtService.signAsync(
             {
                 sub: user.id,
                 email: user.email,
-                role: 'consumer',
+                role: user.registrationType,
             },
-            { secret: process.env.CONSUMER_JWT_SECRET },
+            { secret: secret },
         );
 
+        // Clean up conflicting cookies
+        this.authCoreUtilsService.handleConflictingCookies(user.registrationType, response);
+
         // Set cookie
-        response.cookie('consumer_access_token', token, {
+        response.cookie(user.registrationType, token, {
             httpOnly: true, // cannot be accessed by JS (security)
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',

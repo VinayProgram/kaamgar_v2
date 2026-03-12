@@ -60,7 +60,7 @@ export default function Home() {
                               <Link href="/auth/consumer/signup">Post a Job Request</Link>
                            </Button>
                            <Button asChild variant="outline" size="lg" className="h-14 px-10 border-2 border-brand-navy text-brand-navy hover:bg-brand-navy/5 font-bold text-lg hover-scale">
-                              <Link href="/auth/kaamgar/signup">Become a Kaamgar</Link>
+                              <Link href="/auth/service-provider/signup">Become a Kaamgar</Link>
                            </Button>
                         </div>
                         <div className="mt-12 flex items-center space-x-6 text-sm font-semibold text-brand-navy/60">

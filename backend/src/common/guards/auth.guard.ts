@@ -26,14 +26,11 @@ export class AuthGuard implements CanActivate {
         }
 
         const request = context.switchToHttp().getRequest();
-        const url = request.url;
-        const isServiceProvider = request.cookies?.provider_access_token;
+        const isUser = request.cookies?.user;
+        const secret = isUser ? process.env.CONSUMER_JWT_SECRET : process.env.SERVICE_PROVIDER_JWT_SECRET;
 
         // Select the appropriate cookie name and secret
-        const cookieName = isServiceProvider ? 'provider_access_token' : 'consumer_access_token';
-        const secret = isServiceProvider
-            ? process.env.SERVICE_PROVIDER_JWT_SECRET
-            : process.env.CONSUMER_JWT_SECRET;
+        const cookieName = isUser ? 'user' : 'service_provider';
 
         // 2. Extract token from Header or Cookie
         const token = request.cookies?.[cookieName];

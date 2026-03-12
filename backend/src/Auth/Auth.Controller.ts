@@ -52,13 +52,17 @@ export class AuthController {
   async login(
     @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) response: Response,
+    @Request() req: Request,
   ) {
-    return this.authService.login(loginDto, response);
+    return this.authService.login(loginDto, req, response);
   }
 
-  @Get('profile')
-  @ApiOperation({ summary: 'Get consumer profile' })
-  getProfile(@Request() req) {
-    return req.user;
+  @Get('authenticate')
+  @ApiOperation({ summary: 'authenticate profile' })
+  async authenticate(@Request() req) {
+    const user = await this.authService.getUserById(req.user.sub);
+    if (!user) return null;
+    const { password: _, ...result } = user;
+    return result;
   }
 }
