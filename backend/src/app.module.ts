@@ -1,17 +1,25 @@
 import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, RouterModule } from '@nestjs/core';
 import { DatabaseConnectionModule } from './db/database-connection.module';
-import { ConsumerModule } from './consumer/consumer.module';
 import { ServiceProviderModule } from './service-provider/service-provider.module';
 import { AuthGuard } from './common/guards/auth.guard';
 import { AuthCoreModule } from './core/auth-core/auth-core.module';
+import { ConsumerModule } from './consumer/Consumer.module';
 
 @Module({
   imports: [
     DatabaseConnectionModule,
-    AuthCoreModule, // 👈 Global JWT configuration
-    ConsumerModule,
-    ServiceProviderModule,
+    AuthCoreModule,
+    RouterModule.register([
+      {
+        path: 'consumer',
+        module: ConsumerModule,
+      },
+      {
+        path: 'service-provider',
+        module: ServiceProviderModule,
+      },
+    ]),
   ],
   controllers: [],
   providers: [

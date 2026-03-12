@@ -6,7 +6,7 @@ import { LoginDto, LoginSchema } from './dto/login.dto';
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
 import { Public } from '../../common/decorators/public.decorator';
 
-@Controller('service-provider/users')
+@Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) { }
 
