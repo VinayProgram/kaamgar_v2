@@ -5,7 +5,7 @@ import { BcryptUtil } from '../../common/bcrypt/bcrypt.util';
 import { NewUser, User, users } from '../../db/schemas/user.schema';
 
 @Injectable()
-export class ConsumerCoreService {
+export class AuthCoreService {
     constructor(
         @Inject(DATABASE_CONNECTION) private readonly db: Database
     ) { }

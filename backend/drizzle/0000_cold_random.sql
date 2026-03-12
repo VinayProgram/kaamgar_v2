@@ -2,6 +2,18 @@ CREATE TYPE "public"."applicant_status" AS ENUM('applied', 'shortlisted', 'accep
 CREATE TYPE "public"."job_request_type" AS ENUM('instant', 'scheduled', 'recurring');--> statement-breakpoint
 CREATE TYPE "public"."job_status" AS ENUM('draft', 'open', 'expired', 'assigned', 'in_progress', 'completed', 'cancelled');--> statement-breakpoint
 CREATE TYPE "public"."price_type" AS ENUM('fixed', 'negotiable', 'range');--> statement-breakpoint
+CREATE TYPE "public"."registration_type" AS ENUM('user', 'service_provider');--> statement-breakpoint
+CREATE TABLE "service_categories" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"name" varchar(100) NOT NULL,
+	"slug" varchar(100) NOT NULL,
+	"description" text,
+	"parent_category_id" uuid,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "service_categories_name_unique" UNIQUE("name"),
+	CONSTRAINT "service_categories_slug_unique" UNIQUE("slug")
+);
+--> statement-breakpoint
 CREATE TABLE "job_applicants" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"job_request_id" uuid NOT NULL,
@@ -49,17 +61,6 @@ CREATE TABLE "job_requests" (
 	CONSTRAINT "check_valid_open_till" CHECK ("job_requests"."valid_open_till" > "job_requests"."created_at"),
 	CONSTRAINT "check_required_at" CHECK ("job_requests"."required_at" >= "job_requests"."created_at"),
 	CONSTRAINT "check_budget_range" CHECK ("job_requests"."budget_min" <= "job_requests"."budget_max")
-);
---> statement-breakpoint
-CREATE TABLE "service_categories" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"name" varchar(100) NOT NULL,
-	"slug" varchar(100) NOT NULL,
-	"description" text,
-	"parent_category_id" uuid,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	CONSTRAINT "service_categories_name_unique" UNIQUE("name"),
-	CONSTRAINT "service_categories_slug_unique" UNIQUE("slug")
 );
 --> statement-breakpoint
 CREATE TABLE "service_provider_category_map" (
@@ -138,32 +139,13 @@ CREATE TABLE "skills" (
 	CONSTRAINT "skills_slug_unique" UNIQUE("slug")
 );
 --> statement-breakpoint
-CREATE TABLE "service_users" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"first_name" varchar(255) NOT NULL,
-	"last_name" varchar(255) NOT NULL,
-	"email" varchar(255) NOT NULL,
-	"phone_number" varchar(20),
-	"password" text,
-	"o_auth_provider" varchar(50),
-	"o_auth_id" text,
-	"is_email_verified" boolean DEFAULT false NOT NULL,
-	"is_phone_verified" boolean DEFAULT false NOT NULL,
-	"is_active" boolean DEFAULT true NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"last_login_at" timestamp,
-	CONSTRAINT "service_users_email_unique" UNIQUE("email"),
-	CONSTRAINT "service_users_phone_number_unique" UNIQUE("phone_number"),
-	CONSTRAINT "service_users_o_auth_id_unique" UNIQUE("o_auth_id")
-);
---> statement-breakpoint
 CREATE TABLE "users" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"first_name" varchar(255) NOT NULL,
 	"last_name" varchar(255) NOT NULL,
 	"email" varchar(255) NOT NULL,
 	"phone_number" varchar(20),
+	"registration_type" "registration_type",
 	"password" text,
 	"o_auth_provider" varchar(50),
 	"o_auth_id" text,
@@ -178,24 +160,24 @@ CREATE TABLE "users" (
 	CONSTRAINT "users_o_auth_id_unique" UNIQUE("o_auth_id")
 );
 --> statement-breakpoint
+ALTER TABLE "service_categories" ADD CONSTRAINT "service_categories_parent_category_id_service_categories_id_fk" FOREIGN KEY ("parent_category_id") REFERENCES "public"."service_categories"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "job_applicants" ADD CONSTRAINT "job_applicants_job_request_id_job_requests_id_fk" FOREIGN KEY ("job_request_id") REFERENCES "public"."job_requests"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "job_applicants" ADD CONSTRAINT "job_applicants_service_provider_user_id_service_users_id_fk" FOREIGN KEY ("service_provider_user_id") REFERENCES "public"."service_users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "job_applicants" ADD CONSTRAINT "job_applicants_service_provider_user_id_users_id_fk" FOREIGN KEY ("service_provider_user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "job_request_categories" ADD CONSTRAINT "job_request_categories_job_request_id_job_requests_id_fk" FOREIGN KEY ("job_request_id") REFERENCES "public"."job_requests"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "job_request_categories" ADD CONSTRAINT "job_request_categories_category_id_service_categories_id_fk" FOREIGN KEY ("category_id") REFERENCES "public"."service_categories"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "job_request_skills" ADD CONSTRAINT "job_request_skills_job_request_id_job_requests_id_fk" FOREIGN KEY ("job_request_id") REFERENCES "public"."job_requests"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "job_request_skills" ADD CONSTRAINT "job_request_skills_skill_id_skills_id_fk" FOREIGN KEY ("skill_id") REFERENCES "public"."skills"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "job_requests" ADD CONSTRAINT "job_requests_consumer_user_id_users_id_fk" FOREIGN KEY ("consumer_user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "job_requests" ADD CONSTRAINT "job_requests_assigned_service_provider_id_service_users_id_fk" FOREIGN KEY ("assigned_service_provider_id") REFERENCES "public"."service_users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "service_categories" ADD CONSTRAINT "service_categories_parent_category_id_service_categories_id_fk" FOREIGN KEY ("parent_category_id") REFERENCES "public"."service_categories"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "service_provider_category_map" ADD CONSTRAINT "service_provider_category_map_service_user_id_service_users_id_fk" FOREIGN KEY ("service_user_id") REFERENCES "public"."service_users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "job_requests" ADD CONSTRAINT "job_requests_assigned_service_provider_id_users_id_fk" FOREIGN KEY ("assigned_service_provider_id") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "service_provider_category_map" ADD CONSTRAINT "service_provider_category_map_service_user_id_users_id_fk" FOREIGN KEY ("service_user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "service_provider_category_map" ADD CONSTRAINT "service_provider_category_map_category_id_service_categories_id_fk" FOREIGN KEY ("category_id") REFERENCES "public"."service_categories"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "service_provider_current_location" ADD CONSTRAINT "service_provider_current_location_service_user_id_service_users_id_fk" FOREIGN KEY ("service_user_id") REFERENCES "public"."service_users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "service_provider_profiles" ADD CONSTRAINT "service_provider_profiles_service_user_id_service_users_id_fk" FOREIGN KEY ("service_user_id") REFERENCES "public"."service_users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "service_provider_ratings" ADD CONSTRAINT "service_provider_ratings_service_user_id_service_users_id_fk" FOREIGN KEY ("service_user_id") REFERENCES "public"."service_users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "service_provider_current_location" ADD CONSTRAINT "service_provider_current_location_service_user_id_users_id_fk" FOREIGN KEY ("service_user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "service_provider_profiles" ADD CONSTRAINT "service_provider_profiles_service_user_id_users_id_fk" FOREIGN KEY ("service_user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "service_provider_ratings" ADD CONSTRAINT "service_provider_ratings_service_user_id_users_id_fk" FOREIGN KEY ("service_user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "service_provider_ratings" ADD CONSTRAINT "service_provider_ratings_reviewer_user_id_users_id_fk" FOREIGN KEY ("reviewer_user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "service_provider_skills" ADD CONSTRAINT "service_provider_skills_service_user_id_service_users_id_fk" FOREIGN KEY ("service_user_id") REFERENCES "public"."service_users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "service_provider_skills" ADD CONSTRAINT "service_provider_skills_service_user_id_users_id_fk" FOREIGN KEY ("service_user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "service_provider_skills" ADD CONSTRAINT "service_provider_skills_skill_id_skills_id_fk" FOREIGN KEY ("skill_id") REFERENCES "public"."skills"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "service_provider_work_history" ADD CONSTRAINT "service_provider_work_history_service_user_id_service_users_id_fk" FOREIGN KEY ("service_user_id") REFERENCES "public"."service_users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "service_provider_work_history" ADD CONSTRAINT "service_provider_work_history_service_user_id_users_id_fk" FOREIGN KEY ("service_user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "idx_applicant_sp_id" ON "job_applicants" USING btree ("service_provider_user_id");--> statement-breakpoint
 CREATE INDEX "idx_applicant_status" ON "job_applicants" USING btree ("status");--> statement-breakpoint
 CREATE INDEX "idx_job_status" ON "job_requests" USING btree ("status");--> statement-breakpoint

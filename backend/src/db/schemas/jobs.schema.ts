@@ -1,6 +1,5 @@
 import { pgTable, uuid, text, varchar, timestamp, decimal, integer, pgEnum, geometry, index, unique, check, smallint, boolean } from "drizzle-orm/pg-core";
 import { users } from "./user.schema";
-import { serviceUsers } from "./service-users.schema";
 import { serviceCategories } from "./categories.schema";
 import { skills } from "./skills.schema";
 
@@ -54,7 +53,7 @@ export const jobRequests = pgTable("job_requests", {
     status: jobStatusEnum("status").default("open").notNull(),
 
     assignedServiceProviderId: uuid("assigned_service_provider_id")
-        .references(() => serviceUsers.id, { onDelete: 'set null' }),
+        .references(() => users.id, { onDelete: 'set null' }),
 
     totalApplicants: integer("total_applicants").default(0).notNull(),
 
@@ -106,7 +105,7 @@ export const jobApplicants = pgTable("job_applicants", {
         .references(() => jobRequests.id, { onDelete: 'cascade' }),
     serviceProviderUserId: uuid("service_provider_user_id")
         .notNull()
-        .references(() => serviceUsers.id, { onDelete: 'cascade' }),
+        .references(() => users.id, { onDelete: 'cascade' }),
 
     proposedPrice: decimal("proposed_price", { precision: 12, scale: 2 }),
     coverMessage: text("cover_message"),

@@ -1,12 +1,14 @@
 import { pgTable, uuid, text, varchar, timestamp, pgEnum, boolean } from "drizzle-orm/pg-core";
 
+export const registrationTypeEnum = pgEnum("registration_type", ["user", "service_provider"]);
+
 export const users = pgTable("users", {
     id: uuid("id").defaultRandom().primaryKey(),
     firstName: varchar("first_name", { length: 255 }).notNull(),
     lastName: varchar("last_name", { length: 255 }).notNull(),
     email: varchar("email", { length: 255 }).unique().notNull(),
     phoneNumber: varchar("phone_number", { length: 20 }).unique(),
-
+    registrationType: registrationTypeEnum("registration_type"),
     // Authentication
     password: text("password"), // Nullable for OAuth users
     oAuthProvider: varchar("o_auth_provider", { length: 50 }), // For generic OAuth 

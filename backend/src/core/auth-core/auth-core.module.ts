@@ -1,5 +1,6 @@
 import { Global, Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
+import { AuthCoreService } from './auth-core.service';
 
 @Global()
 @Module({
@@ -10,6 +11,7 @@ import { JwtModule } from '@nestjs/jwt';
             signOptions: { expiresIn: '1d' }, // token expires in 1 day
         }),
     ],
-    exports: [JwtModule],
+    providers: [AuthCoreService],
+    exports: [JwtModule, AuthCoreService],
 })
 export class AuthCoreModule { }

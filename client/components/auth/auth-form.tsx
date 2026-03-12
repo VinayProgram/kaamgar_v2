@@ -1,7 +1,10 @@
 "use client"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
+import { useRouter } from "next/navigation"
+import { useAuthStore } from "@/store/auth-store"
 import { loginSchema, signUpSchema, type LoginValues, type SignUpValues } from "@/lib/validations/auth"
+import { signin, signup } from "@/app/auth/api"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -22,6 +25,8 @@ interface AuthFormProps {
 }
 
 export function AuthForm({ type, userType }: AuthFormProps) {
+  const router = useRouter()
+  const { setUser } = useAuthStore()
   const schema = type === "signin" ? loginSchema : signUpSchema
 
   const form = useForm<any>({
@@ -31,9 +36,25 @@ export function AuthForm({ type, userType }: AuthFormProps) {
       : { name: "", email: "", password: "", confirmPassword: "" },
   })
 
-  function onSubmit(values: any) {
-    console.log(values)
-    // Handle submission here
+  async function onSubmit(values: any) {
+    try {
+      let response;
+      if (type === "signin") {
+        response = await signin(values, userType);
+      } else {
+        response = await signup(values, userType);
+      }
+
+      if (response) {
+        // Assume API returns user data correctly on successful auth
+        setUser(response.user || response);
+        // Redirect to dashboard or home after successful login/signup
+        router.push(userType === "consumer" ? "/consumers" : "/service-provider");
+      }
+    } catch (error: any) {
+      console.error(`${type} error:`, error.response?.data?.message || error.message);
+      // Here you could set form errors or show a toast
+    }
   }
 
   const title = type === "signin" ? "Sign In" : "Create an Account"

@@ -1,9 +1,89 @@
 {
-  "id": "81f04590-af37-41f1-86ce-1059fa475725",
+  "id": "98fd94fb-51ac-4ad7-9ba0-074ad30e562b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
+    "public.service_categories": {
+      "name": "service_categories",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slug": {
+          "name": "slug",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "parent_category_id": {
+          "name": "parent_category_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "service_categories_parent_category_id_service_categories_id_fk": {
+          "name": "service_categories_parent_category_id_service_categories_id_fk",
+          "tableFrom": "service_categories",
+          "tableTo": "service_categories",
+          "columnsFrom": [
+            "parent_category_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "service_categories_name_unique": {
+          "name": "service_categories_name_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "name"
+          ]
+        },
+        "service_categories_slug_unique": {
+          "name": "service_categories_slug_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "slug"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.job_applicants": {
       "name": "job_applicants",
       "schema": "",
@@ -108,10 +188,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "job_applicants_service_provider_user_id_service_users_id_fk": {
-          "name": "job_applicants_service_provider_user_id_service_users_id_fk",
+        "job_applicants_service_provider_user_id_users_id_fk": {
+          "name": "job_applicants_service_provider_user_id_users_id_fk",
           "tableFrom": "job_applicants",
-          "tableTo": "service_users",
+          "tableTo": "users",
           "columnsFrom": [
             "service_provider_user_id"
           ],
@@ -471,10 +551,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "job_requests_assigned_service_provider_id_service_users_id_fk": {
-          "name": "job_requests_assigned_service_provider_id_service_users_id_fk",
+        "job_requests_assigned_service_provider_id_users_id_fk": {
+          "name": "job_requests_assigned_service_provider_id_users_id_fk",
           "tableFrom": "job_requests",
-          "tableTo": "service_users",
+          "tableTo": "users",
           "columnsFrom": [
             "assigned_service_provider_id"
           ],
@@ -504,86 +584,6 @@
       },
       "isRLSEnabled": false
     },
-    "public.service_categories": {
-      "name": "service_categories",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "slug": {
-          "name": "slug",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "parent_category_id": {
-          "name": "parent_category_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "service_categories_parent_category_id_service_categories_id_fk": {
-          "name": "service_categories_parent_category_id_service_categories_id_fk",
-          "tableFrom": "service_categories",
-          "tableTo": "service_categories",
-          "columnsFrom": [
-            "parent_category_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "service_categories_name_unique": {
-          "name": "service_categories_name_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "name"
-          ]
-        },
-        "service_categories_slug_unique": {
-          "name": "service_categories_slug_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.service_provider_category_map": {
       "name": "service_provider_category_map",
       "schema": "",
@@ -603,10 +603,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "service_provider_category_map_service_user_id_service_users_id_fk": {
-          "name": "service_provider_category_map_service_user_id_service_users_id_fk",
+        "service_provider_category_map_service_user_id_users_id_fk": {
+          "name": "service_provider_category_map_service_user_id_users_id_fk",
           "tableFrom": "service_provider_category_map",
-          "tableTo": "service_users",
+          "tableTo": "users",
           "columnsFrom": [
             "service_user_id"
           ],
@@ -706,10 +706,10 @@
         }
       },
       "foreignKeys": {
-        "service_provider_current_location_service_user_id_service_users_id_fk": {
-          "name": "service_provider_current_location_service_user_id_service_users_id_fk",
+        "service_provider_current_location_service_user_id_users_id_fk": {
+          "name": "service_provider_current_location_service_user_id_users_id_fk",
           "tableFrom": "service_provider_current_location",
-          "tableTo": "service_users",
+          "tableTo": "users",
           "columnsFrom": [
             "service_user_id"
           ],
@@ -850,10 +850,10 @@
         }
       },
       "foreignKeys": {
-        "service_provider_profiles_service_user_id_service_users_id_fk": {
-          "name": "service_provider_profiles_service_user_id_service_users_id_fk",
+        "service_provider_profiles_service_user_id_users_id_fk": {
+          "name": "service_provider_profiles_service_user_id_users_id_fk",
           "tableFrom": "service_provider_profiles",
-          "tableTo": "service_users",
+          "tableTo": "users",
           "columnsFrom": [
             "service_user_id"
           ],
@@ -946,10 +946,10 @@
         }
       },
       "foreignKeys": {
-        "service_provider_ratings_service_user_id_service_users_id_fk": {
-          "name": "service_provider_ratings_service_user_id_service_users_id_fk",
+        "service_provider_ratings_service_user_id_users_id_fk": {
+          "name": "service_provider_ratings_service_user_id_users_id_fk",
           "tableFrom": "service_provider_ratings",
-          "tableTo": "service_users",
+          "tableTo": "users",
           "columnsFrom": [
             "service_user_id"
           ],
@@ -1034,10 +1034,10 @@
         }
       },
       "foreignKeys": {
-        "service_provider_skills_service_user_id_service_users_id_fk": {
-          "name": "service_provider_skills_service_user_id_service_users_id_fk",
+        "service_provider_skills_service_user_id_users_id_fk": {
+          "name": "service_provider_skills_service_user_id_users_id_fk",
           "tableFrom": "service_provider_skills",
-          "tableTo": "service_users",
+          "tableTo": "users",
           "columnsFrom": [
             "service_user_id"
           ],
@@ -1156,10 +1156,10 @@
         }
       },
       "foreignKeys": {
-        "service_provider_work_history_service_user_id_service_users_id_fk": {
-          "name": "service_provider_work_history_service_user_id_service_users_id_fk",
+        "service_provider_work_history_service_user_id_users_id_fk": {
+          "name": "service_provider_work_history_service_user_id_users_id_fk",
           "tableFrom": "service_provider_work_history",
-          "tableTo": "service_users",
+          "tableTo": "users",
           "columnsFrom": [
             "service_user_id"
           ],
@@ -1236,131 +1236,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.service_users": {
-      "name": "service_users",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "first_name": {
-          "name": "first_name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "last_name": {
-          "name": "last_name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "email": {
-          "name": "email",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "phone_number": {
-          "name": "phone_number",
-          "type": "varchar(20)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "password": {
-          "name": "password",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "o_auth_provider": {
-          "name": "o_auth_provider",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "o_auth_id": {
-          "name": "o_auth_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "is_email_verified": {
-          "name": "is_email_verified",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "is_phone_verified": {
-          "name": "is_phone_verified",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "is_active": {
-          "name": "is_active",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "last_login_at": {
-          "name": "last_login_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "service_users_email_unique": {
-          "name": "service_users_email_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
-        },
-        "service_users_phone_number_unique": {
-          "name": "service_users_phone_number_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "phone_number"
-          ]
-        },
-        "service_users_o_auth_id_unique": {
-          "name": "service_users_o_auth_id_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "o_auth_id"
-          ]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.users": {
       "name": "users",
       "schema": "",
@@ -1393,6 +1268,13 @@
         "phone_number": {
           "name": "phone_number",
           "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "registration_type": {
+          "name": "registration_type",
+          "type": "registration_type",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": false
         },
@@ -1528,6 +1410,14 @@
         "fixed",
         "negotiable",
         "range"
+      ]
+    },
+    "public.registration_type": {
+      "name": "registration_type",
+      "schema": "public",
+      "values": [
+        "user",
+        "service_provider"
       ]
     }
   },

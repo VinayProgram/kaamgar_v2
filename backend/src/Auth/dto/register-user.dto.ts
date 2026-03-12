@@ -5,16 +5,11 @@ export const RegisterUserSchema = z.object({
     lastName: z.string().min(1, 'Last name is required'),
     email: z.string().email('Invalid email address'),
     phoneNumber: z.string().optional(),
-
-
-    // standard registration
     password: z.string().min(6, 'Password must be at least 6 characters').optional(),
-
-    // Google/OAuth registration
+    registrationType: z.enum(['user', 'service_provider']),
     oAuthProvider: z.string().optional(),
     oAuthId: z.string().optional(),
 }).refine((data) => {
-    // If not an OAuth login, password must be present
     if (!data.oAuthProvider && !data.oAuthId) {
         return !!data.password;
     }
