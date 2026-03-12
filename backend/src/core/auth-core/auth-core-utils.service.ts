@@ -20,4 +20,19 @@ export class AuthCoreUtilsService {
             }
         });
     }
+
+    /**
+     * Clears all auth cookies.
+     */
+    clearAllCookies(response: Response) {
+        const cookiesToClear = ['user', 'service_provider'];
+        
+        cookiesToClear.forEach(cookieName => {
+            response.clearCookie(cookieName, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+            });
+        });
+    }
 }

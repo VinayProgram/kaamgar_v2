@@ -73,4 +73,9 @@ export class AuthService {
     async deleteUser(id: string): Promise<boolean> {
         return this.authCoreService.delete(id);
     }
+
+    async logout(response: Response): Promise<{ message: string }> {
+        this.authCoreUtilsService.clearAllCookies(response);
+        return { message: 'Logged out successfully' };
+    }
 }

@@ -65,4 +65,10 @@ export class AuthController {
     const { password: _, ...result } = user;
     return result;
   }
+
+  @Post('logout')
+  @ApiOperation({ summary: 'Logout user' })
+  async logout(@Res({ passthrough: true }) response: Response) {
+    return await this.authService.logout(response);
+  }
 }
