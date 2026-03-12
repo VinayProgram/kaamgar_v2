@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { useRouter } from "next/navigation"
 import { useAuthStore } from "@/store/auth-store"
-import { loginSchema, signUpSchema, type LoginValues, type SignUpValues } from "@/lib/validations/auth"
+import { loginSchema, signUpSchema, type LoginValues, type SignUpValues } from "@/app/auth/schema/auth"
 import { signin, signup } from "@/app/auth/api"
 import { Button } from "@/components/ui/button"
 import {
@@ -21,35 +21,39 @@ import { motion } from "framer-motion"
 
 interface AuthFormProps {
   type: "signin" | "signup"
-  userType: "kaamgar" | "consumer"
+  userType: "user" | "service_provider"
 }
 
 export function AuthForm({ type, userType }: AuthFormProps) {
   const router = useRouter()
   const { setUser } = useAuthStore()
   const schema = type === "signin" ? loginSchema : signUpSchema
-
   const form = useForm<any>({
     resolver: zodResolver(schema),
     defaultValues: type === "signin"
       ? { email: "", password: "" }
-      : { name: "", email: "", password: "", confirmPassword: "" },
+      : { firstName: "", lastName: "", email: "", password: "", confirmPassword: "", registrationType: userType, phoneNumber: "" },
   })
+  console.log(form.getValues())
 
   async function onSubmit(values: any) {
     try {
       let response;
       if (type === "signin") {
-        response = await signin(values, userType);
+        response = await signin({
+          ...values,
+        });
       } else {
-        response = await signup(values, userType);
+        response = await signup({
+          ...values
+        });
       }
 
       if (response) {
         // Assume API returns user data correctly on successful auth
         setUser(response.user || response);
         // Redirect to dashboard or home after successful login/signup
-        router.push(userType === "consumer" ? "/consumers" : "/service-provider");
+        router.push(userType === "user" ? "/consumers" : "/service-provider");
       }
     } catch (error: any) {
       console.error(`${type} error:`, error.response?.data?.message || error.message);
@@ -58,7 +62,7 @@ export function AuthForm({ type, userType }: AuthFormProps) {
   }
 
   const title = type === "signin" ? "Sign In" : "Create an Account"
-  const description = userType === "kaamgar"
+  const description = userType === "service_provider"
     ? "Join as a Service Provider to find work"
     : "Join as a Customer to find services"
 
@@ -87,16 +91,32 @@ export function AuthForm({ type, userType }: AuthFormProps) {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit, (data) => console.log(data))} className="space-y-4">
               {type === "signup" && (
                 <FormField
                   control={form.control}
-                  name="name"
+                  name="firstName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Full Name</FormLabel>
+                      <FormLabel>First Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="John Doe" {...field} />
+                        <Input placeholder="John" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              {type === "signup" && (
+                <FormField
+                  control={form.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Last Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Doe" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -116,6 +136,19 @@ export function AuthForm({ type, userType }: AuthFormProps) {
                   </FormItem>
                 )}
               />
+              {type === "signup" && <FormField
+                control={form.control}
+                name="phoneNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone Number</FormLabel>
+                    <FormControl>
+                      <Input placeholder="1234567890" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />}
               <FormField
                 control={form.control}
                 name="password"

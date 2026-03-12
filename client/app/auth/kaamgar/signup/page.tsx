@@ -7,7 +7,7 @@ export default function KaamgarSignUpPage() {
         <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] rounded-full bg-blue-500/10 blur-[120px]" />
         <div className="absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] rounded-full bg-indigo-500/10 blur-[120px]" />
       </div>
-      <AuthForm type="signup" userType="kaamgar" />
+      <AuthForm type="signup" userType="service_provider" />
     </div>
   )
 }

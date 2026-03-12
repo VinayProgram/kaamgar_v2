@@ -1,18 +1,19 @@
 import api from "@/lib/api";
-import { LoginValues, SignUpValues } from "@/lib/validations/auth";
+import { LoginValues, SignUpValues } from "@/app/auth/schema/auth";
 
-export const signup = async (data: SignUpValues, userType: "consumer" | "kaamgar") => {
+export const signup = async (data: SignUpValues) => {
+    console.log(data)
     // API endpoint based on userType (kaamgar is service-provider in backend)
-    const endpoint = userType === "consumer" ? "/consumer/users/register" : "/service-provider/users/register";
+    const endpoint = "/auth/register";
     const response = await api.post(endpoint, data);
     return response.data;
 };
 
 
 
-export const signin = async (data: LoginValues, userType: "consumer" | "kaamgar") => {
+export const signin = async (data: LoginValues) => {
     // API endpoint based on userType (kaamgar is service-provider in backend)
-    const endpoint = userType === "consumer" ? "/consumer/users/login" : "/service-provider/users/login";
+    const endpoint = "/auth/login";
     const response = await api.post(endpoint, data);
     return response.data;
 };
