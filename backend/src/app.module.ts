@@ -3,14 +3,17 @@ import { APP_GUARD } from '@nestjs/core';
 import { DatabaseConnectionModule } from './db/database-connection.module';
 import { AuthGuard } from './common/guards/auth.guard';
 import { AuthCoreModule } from './core/auth-core/auth-core.module';
-import { AuthModule } from './Auth/Auth.module';
+import { AuthModule } from './auth/Auth.module';
+import { ConsumerModule } from './consumer/Consumer.module';
+import { SkillsCategoriesModule } from './skills-categories/skills-categories.module';
 
 @Module({
   imports: [
     DatabaseConnectionModule,
     AuthCoreModule,
-    AuthModule
-
+    AuthModule,
+    ConsumerModule,
+    SkillsCategoriesModule
   ],
   controllers: [],
   providers: [
