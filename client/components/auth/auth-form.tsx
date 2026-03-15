@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
 import { motion } from "framer-motion"
+import { useSignIn, useSignUp } from "@/app/auth/hooks"
 
 interface AuthFormProps {
   type: "signin" | "signup"
@@ -25,8 +26,11 @@ interface AuthFormProps {
 }
 
 export function AuthForm({ type, userType }: AuthFormProps) {
-  const router = useRouter()
-  const { setUser } = useAuthStore()
+  const signInMutation = useSignIn(userType)
+  const signUpMutation = useSignUp(userType)
+  
+  const authMutation = type === "signin" ? signInMutation : signUpMutation
+
   const schema = type === "signin" ? loginSchema : signUpSchema
   const form = useForm<any>({
     resolver: zodResolver(schema),
@@ -34,31 +38,9 @@ export function AuthForm({ type, userType }: AuthFormProps) {
       ? { email: "", password: "", registrationType: userType }
       : { firstName: "", lastName: "", email: "", password: "", confirmPassword: "", registrationType: userType, phoneNumber: "" },
   })
-  console.log(form.getValues())
 
   async function onSubmit(values: any) {
-    try {
-      let response;
-      if (type === "signin") {
-        response = await signin({
-          ...values,
-        });
-      } else {
-        response = await signup({
-          ...values
-        });
-      }
-
-      if (response) {
-        // Assume API returns user data correctly on successful auth
-        setUser(response.user || response);
-        // Redirect to dashboard or home after successful login/signup
-        router.push(userType === "user" ? "/consumers" : "/service-provider");
-      }
-    } catch (error: any) {
-      console.error(`${type} error:`, error.response?.data?.message || error.message);
-      // Here you could set form errors or show a toast
-    }
+    authMutation.mutate(values)
   }
 
   const title = type === "signin" ? "Sign In" : "Create an Account"
@@ -177,8 +159,12 @@ export function AuthForm({ type, userType }: AuthFormProps) {
                   )}
                 />
               )}
-              <Button type="submit" className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all duration-300">
-                {type === "signin" ? "Sign In" : "Sign Up"}
+              <Button 
+                type="submit" 
+                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all duration-300"
+                disabled={authMutation.isPending}
+              >
+                {authMutation.isPending ? "Please wait..." : (type === "signin" ? "Sign In" : "Sign Up")}
               </Button>
             </form>
           </Form>

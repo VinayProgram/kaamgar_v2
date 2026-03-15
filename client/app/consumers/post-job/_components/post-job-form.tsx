@@ -1,6 +1,5 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -27,15 +26,17 @@ import {
 import { Card, CardContent } from "@/components/ui/card"
 import { Loader2, MapPin, IndianRupee } from "lucide-react"
 import { postJobSchema, PostJobValues } from "../schema"
-import { postJob } from "../api"
-import { getSkills } from "@/app/skills/api"
-import { getCategories } from "@/app/categories/api"
+import { useSkills } from "@/app/skills/hooks"
+import { useCategories } from "@/app/categories/hooks"
+import { useCreateJob } from "../hooks"
 
 export function PostJobForm() {
   const router = useRouter()
-  const [loading, setLoading] = useState(false)
-  const [skills, setSkills] = useState<{id: string, name: string}[]>([])
-  const [categories, setCategories] = useState<{id: string, name: string}[]>([])
+
+  // Hooks
+  const { data: skills = [] } = useSkills()
+  const { data: categories = [] } = useCategories()
+  const postJobMutation = useCreateJob()
 
   const form = useForm<any>({
     resolver: zodResolver(postJobSchema),
@@ -57,33 +58,8 @@ export function PostJobForm() {
     },
   })
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [skillsData, categoriesData] = await Promise.all([
-          getSkills().catch(() => []),
-          getCategories().catch(() => []),
-        ])
-        setSkills(skillsData)
-        setCategories(categoriesData)
-      } catch (error) {
-        console.error("Failed to fetch skills/categories", error)
-      }
-    }
-    fetchData()
-  }, [])
-
   async function onSubmit(values: PostJobValues) {
-    setLoading(true)
-    try {
-      await postJob(values)
-      toast.success("Job posted successfully!")
-      router.push("/consumers/my-jobs")
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to post job")
-    } finally {
-      setLoading(false)
-    }
+    postJobMutation.mutate(values)
   }
 
   const priceType = form.watch("priceType")
@@ -339,8 +315,8 @@ export function PostJobForm() {
           />
         </div>
 
-        <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 h-12" disabled={loading}>
-          {loading ? (
+        <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 h-12" disabled={postJobMutation.isPending}>
+          {postJobMutation.isPending ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Posting Job...
