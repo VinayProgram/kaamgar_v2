@@ -1,7 +1,9 @@
 import api from "@/lib/api";
-import { PostJobValues } from "./schema";
+import { CreateJobDto, PostJobResponse } from "./dto";
 
-export const postJob = async (data: PostJobValues) => {
-  const response = await api.post("/jobs/post-job", data);
+export const postJob = async (data: CreateJobDto): Promise<PostJobResponse> => {
+  const response = await api.post<PostJobResponse>("/jobs/post-job", data);
   return response.data;
 };
+
+

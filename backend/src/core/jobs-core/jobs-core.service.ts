@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { eq, sql } from 'drizzle-orm';
+import { eq, sql, asc, inArray } from 'drizzle-orm';
 import { DATABASE_CONNECTION, Database } from '../../db/database-connection.module';
 import { jobRequests, jobRequestSkills, jobRequestCategories } from '../../db/schemas/jobs.schema';
 import { CreateJobDto } from '../../consumer/jobs-posting/dto/create-job.dto';
@@ -73,5 +73,70 @@ export class JobsCoreService {
         return this.db.select()
             .from(jobRequests)
             .where(eq(jobRequests.consumerUserId, consumerUserId));
+    }
+
+    /**
+     * Find jobs for a service provider based on skills, categories, and location proximity
+     */
+    async findNearbyJobs(params: {
+        skillIds: string[];
+        categoryIds: string[];
+        latitude: number;
+        longitude: number;
+        radiusMeters?: number;
+    }) {
+        const { skillIds, categoryIds, latitude, longitude, radiusMeters = 50000 } = params;
+
+        // Construct conditions
+        const conditions = [
+            eq(jobRequests.status, 'open'),
+        ];
+
+        // Filter by skills if provided
+        if (skillIds.length > 0) {
+            conditions.push(inArray(jobRequests.id,
+                this.db.select({ id: jobRequestSkills.jobRequestId })
+                    .from(jobRequestSkills)
+                    .where(inArray(jobRequestSkills.skillId, skillIds))
+            ));
+        }
+
+        // Filter by categories if provided
+        if (categoryIds.length > 0) {
+            conditions.push(inArray(jobRequests.id,
+                this.db.select({ id: jobRequestCategories.jobRequestId })
+                    .from(jobRequestCategories)
+                    .where(inArray(jobRequestCategories.categoryId, categoryIds))
+            ));
+        }
+
+        // Distance filtering and calculation
+        const distanceSql = sql<number>`ST_Distance(
+            ${jobRequests.location}, 
+            ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}), 4326)::geography
+        )`;
+
+        // conditions.push(sql`ST_DWithin(
+        //     ${jobRequests.location}, 
+        //     ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}), 4326)::geography, 
+        //     ${radiusMeters}
+        // )`);
+
+        return this.db.select({
+            id: jobRequests.id,
+            jobRequestType: jobRequests.jobRequestType,
+            jobDescription: jobRequests.jobDescription,
+            status: jobRequests.status,
+            budgetMin: jobRequests.budgetMin,
+            budgetMax: jobRequests.budgetMax,
+            currency: jobRequests.currency,
+            requiredAt: jobRequests.requiredAt,
+            validOpenTill: jobRequests.validOpenTill,
+            distance: distanceSql.as('distance'),
+            createdAt: jobRequests.createdAt,
+        })
+            .from(jobRequests)
+            .where(sql`${sql.join(conditions, sql` AND `)}`)
+            .orderBy(asc(sql`distance`));
     }
 }

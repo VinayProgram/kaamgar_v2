@@ -6,6 +6,7 @@ import { AuthCoreModule } from './core/auth-core/auth-core.module';
 import { AuthModule } from './auth/Auth.module';
 import { ConsumerModule } from './consumer/Consumer.module';
 import { SkillsCategoriesModule } from './skills-categories/skills-categories.module';
+import { ServiceProviderModule } from './service-provider/service-provider.module';
 
 @Module({
   imports: [
@@ -13,8 +14,10 @@ import { SkillsCategoriesModule } from './skills-categories/skills-categories.mo
     AuthCoreModule,
     AuthModule,
     ConsumerModule,
-    SkillsCategoriesModule
+    SkillsCategoriesModule,
+    ServiceProviderModule
   ],
+
   controllers: [],
   providers: [
     {
