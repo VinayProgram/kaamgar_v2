@@ -39,28 +39,41 @@ export function PostJobForm() {
   const { data: skills = [] } = useSkills()
   const { data: categories = [] } = useCategories()
   const postJobMutation = useCreateJob()
-  const location = useGetLocationHook({ updationData: skills })
-  const consumerStore = useConsumerStore()
-  console.log(consumerStore.quickRequest)
-  const form = useForm<any>({
+  const location = useGetLocationHook()
+  const quickRequest = useConsumerStore((state) => state.quickRequest)
+  console.log("hello", quickRequest)
+  const form = useForm({
     resolver: zodResolver(postJobSchema),
     defaultValues: {
-      jobRequestType: consumerStore.quickRequest.requestType,
-      currency: "INR",
+      jobRequestType: quickRequest.jobRequestType,
+      currency: quickRequest.currency,
       location: {
         latitude: location.lat,
         longitude: location.lng,
       },
-      priceType: "fixed",
-      skillIds: [],
-      categoryIds: [],
-      jobDescription: consumerStore.quickRequest.description,
-      validOpenTill: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      requiredAt: "",
-      budgetMin: 0,
-      budgetMax: 0,
+      priceType: quickRequest.priceType,
+      skillIds: quickRequest.skillIds,
+      categoryIds: quickRequest.categoryIds,
+      jobDescription: quickRequest.jobDescription,
+      validOpenTill: quickRequest.validOpenTill,
+      requiredAt: quickRequest.requiredAt,
+      budgetMin: quickRequest.budgetMin,
+      budgetMax: quickRequest.budgetMax,
     },
   })
+
+  // Reset form when quickRequest changes (crucial for edit mode)
+  useEffect(() => {
+    if (quickRequest) {
+      form.reset({
+        ...quickRequest,
+        location: {
+          latitude: quickRequest.location.latitude || location.lat,
+          longitude: quickRequest.location.longitude || location.lng,
+        }
+      })
+    }
+  }, [quickRequest, form.reset])
 
   async function onSubmit(values: PostJobValues) {
     postJobMutation.mutate(values)
@@ -69,11 +82,14 @@ export function PostJobForm() {
   const priceType = form.watch("priceType")
 
   useEffect(() => {
-    if (location) {
+    if (quickRequest?.location?.latitude !== 0 && quickRequest?.location?.longitude !== 0) {
+      form.setValue("location.latitude", quickRequest.location.latitude)
+      form.setValue("location.longitude", quickRequest.location.longitude)
+    } else {
       form.setValue("location.latitude", location.lat)
       form.setValue("location.longitude", location.lng)
     }
-  }, [location])
+  }, [location.lat, location.lng, quickRequest?.location?.latitude, quickRequest?.location?.longitude])
 
   return (
     <Form {...form}>

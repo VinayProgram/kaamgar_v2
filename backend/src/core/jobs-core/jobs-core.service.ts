@@ -3,6 +3,8 @@ import { eq, sql, asc, inArray } from 'drizzle-orm';
 import { DATABASE_CONNECTION, Database } from '../../db/database-connection.module';
 import { jobRequests, jobRequestSkills, jobRequestCategories } from '../../db/schemas/jobs.schema';
 import { CreateJobDto } from '../../consumer/jobs-posting/dto/create-job.dto';
+import { skills } from 'src/db/schemas/skills.schema';
+import { serviceCategories } from 'src/db/schemas/categories.schema';
 
 @Injectable()
 export class JobsCoreService {
@@ -138,5 +140,122 @@ export class JobsCoreService {
             .from(jobRequests)
             .where(sql`${sql.join(conditions, sql` AND `)}`)
             .orderBy(asc(sql`distance`));
+    }
+    /**
+     * Update an existing job request
+     */
+    async update(jobId: string, consumerUserId: string, data: Partial<CreateJobDto>) {
+        return await this.db.transaction(async (tx) => {
+            // 1. Verify ownership and existence
+            const [existingJob] = await tx.select()
+                .from(jobRequests)
+                .where(eq(jobRequests.id, jobId))
+                .limit(1);
+
+            if (!existingJob) {
+                throw new Error('Job not found');
+            }
+
+            if (existingJob.consumerUserId !== consumerUserId) {
+                throw new Error('You do not have permission to update this job');
+            }
+
+            // 2. Prepare update values
+            const updateValues: any = {
+                updatedAt: new Date(),
+            };
+
+            if (data.jobRequestType) updateValues.jobRequestType = data.jobRequestType;
+            if (data.jobDescription) updateValues.jobDescription = data.jobDescription;
+            if (data.priceType) updateValues.priceType = data.priceType;
+            if (data.budgetMin !== undefined) updateValues.budgetMin = data.budgetMin.toString();
+            if (data.budgetMax !== undefined) updateValues.budgetMax = data.budgetMax.toString();
+            if (data.currency) updateValues.currency = data.currency;
+            if (data.requiredAt) updateValues.requiredAt = data.requiredAt;
+            if (data.validOpenTill) updateValues.validOpenTill = data.validOpenTill;
+
+            if (data.location) {
+                const lon = data.location.longitude;
+                const lat = data.location.latitude;
+                updateValues.location = sql`ST_SetSRID(ST_MakePoint(${lon}, ${lat}), 4326)`;
+            }
+
+            // 3. Update job request
+            const [updatedJob] = await tx.update(jobRequests)
+                .set(updateValues)
+                .where(eq(jobRequests.id, jobId))
+                .returning();
+
+            // 4. Update skills if provided
+            if (data.skillIds) {
+                await tx.delete(jobRequestSkills).where(eq(jobRequestSkills.jobRequestId, jobId));
+                if (data.skillIds.length > 0) {
+                    await tx.insert(jobRequestSkills).values(
+                        data.skillIds.map(skillId => ({
+                            jobRequestId: jobId,
+                            skillId: skillId,
+                        }))
+                    );
+                }
+            }
+
+            // 5. Update categories if provided
+            if (data.categoryIds) {
+                await tx.delete(jobRequestCategories).where(eq(jobRequestCategories.jobRequestId, jobId));
+                if (data.categoryIds.length > 0) {
+                    await tx.insert(jobRequestCategories).values(
+                        data.categoryIds.map(categoryId => ({
+                            jobRequestId: jobId,
+                            categoryId: categoryId,
+                        }))
+                    );
+                }
+            }
+
+            return updatedJob;
+        });
+    }
+
+    /**
+     * Close a job request
+     */
+    async close(jobId: string, consumerUserId: string) {
+        const [job] = await this.db.select()
+            .from(jobRequests)
+            .where(eq(jobRequests.id, jobId))
+            .limit(1);
+
+        if (!job) {
+            throw new Error('Job not found');
+        }
+
+        if (job.consumerUserId !== consumerUserId) {
+            throw new Error('You do not have permission to close this job');
+        }
+
+        const [closedJob] = await this.db.update(jobRequests)
+            .set({
+                status: 'cancelled',
+                updatedAt: new Date()
+            })
+            .where(eq(jobRequests.id, jobId))
+            .returning();
+
+        return closedJob;
+    }
+
+    /**
+     * Find a single job with all details (skills, categories)
+     */
+    async findByIdWithDetails(jobId: string) {
+        const results = await this.db.select()
+            .from(jobRequests)
+            .leftJoin(jobRequestSkills, eq(jobRequests.id, jobRequestSkills.jobRequestId))
+            .leftJoin(skills, eq(jobRequestSkills.skillId, skills.id))
+            .leftJoin(jobRequestCategories, eq(jobRequests.id, jobRequestCategories.jobRequestId))
+            .leftJoin(serviceCategories, eq(jobRequestCategories.categoryId, serviceCategories.id))
+            .where(eq(jobRequests.id, jobId));
+
+        return results;
     }
 }

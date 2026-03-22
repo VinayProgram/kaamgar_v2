@@ -23,20 +23,18 @@ const GetLocation = ({ cb, ref }: { cb: (lat: number, lng: number) => void, ref?
     )
 }
 
-export const useGetLocationHook = ({ updationData }: { updationData?: any }) => {
+export const useGetLocationHook = () => {
     const [location, setLocation] = useState<{ lat: number, lng: number }>({
-        lat: 18.5204,
-        lng: 73.8567
+        lat: 0,
+        lng: 0
     })
     useEffect(() => {
         if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition((position) => {
                 setLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
             });
-        } else {
-            setLocation({ lat: 18.5204, lng: 73.8567 });
         }
-    }, [updationData])
+    }, [])
     return location;
 }
 export default GetLocation

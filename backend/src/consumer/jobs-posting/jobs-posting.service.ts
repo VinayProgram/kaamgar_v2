@@ -13,4 +13,16 @@ export class JobsPostingService {
   async getConsumerJobs(consumerUserId: string) {
     return this.jobsCoreService.findByConsumer(consumerUserId);
   }
+
+  async updateJob(jobId: string, consumerUserId: string, updateJobDto: any) {
+    return this.jobsCoreService.update(jobId, consumerUserId, updateJobDto);
+  }
+
+  async closeJob(jobId: string, consumerUserId: string) {
+    return this.jobsCoreService.close(jobId, consumerUserId);
+  }
+
+  async getJobById(jobId: string) {
+    return this.jobsCoreService.findByIdWithDetails(jobId);
+  }
 }

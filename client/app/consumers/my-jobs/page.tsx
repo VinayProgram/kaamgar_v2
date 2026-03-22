@@ -105,6 +105,11 @@ export default function MyJobsPostedPage() {
                         </div>
                       )}
                     </div>
+                    <Link href={`/consumers/post-job/${job.id}/edit-job`}>
+                      <Button variant="default" className="w-full bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 rounded-lg h-9 text-xs">
+                        Edit Job
+                      </Button>
+                    </Link>
                     <Button variant="default" className="w-full bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 rounded-lg h-9 text-xs">
                       View Details
                     </Button>

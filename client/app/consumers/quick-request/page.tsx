@@ -37,10 +37,20 @@ export default function QuickRequestPage() {
   const setQuickRequest = useConsumerStore((state) => state.setQuickRequest)
   const handleQuickRequest = (id: string) => {
     setQuickRequest({
-      category: [],
-      description: quickRequestTypes.find((type) => type.id === id)?.desc || "",
-      requestType: "instant",
-      skills: []
+      jobRequestType: "instant",
+      validOpenTill: "",
+      location: {
+        latitude: 0,
+        longitude: 0,
+        address: ""
+      },
+      jobDescription: quickRequestTypes.find((type) => type.id === id)?.desc || "",
+      priceType: "fixed",
+      budgetMin: 0,
+      budgetMax: 0,
+      currency: "INR",
+      skillIds: [],
+      categoryIds: []
     })
     router.push(`/consumers/post-job?category=${id}`)
   }
@@ -57,9 +67,9 @@ export default function QuickRequestPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {quickRequestTypes.map((type) => (
-          <div 
-            onClick={() => handleQuickRequest(type.id)} 
-            key={type.id} 
+          <div
+            onClick={() => handleQuickRequest(type.id)}
+            key={type.id}
             className="block group cursor-pointer"
           >
             <Card className="h-full border-slate-200 dark:border-slate-800 hover:border-blue-500/50 dark:hover:border-blue-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10 bg-white dark:bg-slate-950/50 overflow-hidden relative">
