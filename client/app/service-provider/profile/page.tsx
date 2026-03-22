@@ -38,6 +38,7 @@ import { useAuthCheck } from "@/app/auth/hooks"
 import { useProviderProfile, useUpdateProviderProfile } from "./hooks"
 import { profileSchema, ProfileValues } from "./schema"
 import { Skeleton } from "@/components/ui/skeleton"
+import GetLocation from "@/components/common/get-location"
 
 export default function ProfilePage() {
   const { data: user } = useAuthCheck()
@@ -399,22 +400,10 @@ export default function ProfilePage() {
                           <p className="text-sm font-bold text-slate-900 dark:text-slate-50">Auto-detect Location</p>
                           <p className="text-xs text-slate-500">Get your exact GPS coordinates for better job matching.</p>
                         </div>
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          size="sm"
-                          className="bg-white dark:bg-slate-900 shadow-sm"
-                          onClick={() => {
-                            if ("geolocation" in navigator) {
-                              navigator.geolocation.getCurrentPosition((position) => {
-                                form.setValue("latitude", position.coords.latitude);
-                                form.setValue("longitude", position.coords.longitude);
-                              });
-                            }
-                          }}
-                        >
-                          <Locate className="h-4 w-4 mr-2 text-indigo-600" /> Get GPS
-                        </Button>
+                        <GetLocation cb={(lat, lng) => {
+                          form.setValue("latitude", lat);
+                          form.setValue("longitude", lng);
+                        }} />
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">

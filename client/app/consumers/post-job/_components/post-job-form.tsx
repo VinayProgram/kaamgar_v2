@@ -4,24 +4,24 @@ import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
-import { 
-  Form, 
-  FormControl, 
-  FormField, 
-  FormItem, 
-  FormLabel, 
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
   FormMessage,
   FormDescription
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from "@/components/ui/select"
 import { Card, CardContent } from "@/components/ui/card"
 import { Loader2, MapPin, IndianRupee } from "lucide-react"
@@ -29,28 +29,32 @@ import { postJobSchema, PostJobValues } from "../schema"
 import { useSkills } from "@/app/skills/hooks"
 import { useCategories } from "@/app/categories/hooks"
 import { useCreateJob } from "../hooks"
+import GetLocation, { useGetLocationHook } from "@/components/common/get-location"
+import { useEffect, useRef } from "react"
+import { useConsumerStore } from "../../store/consumer-store"
 
 export function PostJobForm() {
   const router = useRouter()
-
   // Hooks
   const { data: skills = [] } = useSkills()
   const { data: categories = [] } = useCategories()
   const postJobMutation = useCreateJob()
-
+  const location = useGetLocationHook({ updationData: skills })
+  const consumerStore = useConsumerStore()
+  console.log(consumerStore.quickRequest)
   const form = useForm<any>({
     resolver: zodResolver(postJobSchema),
     defaultValues: {
-      jobRequestType: "scheduled",
+      jobRequestType: consumerStore.quickRequest.requestType,
       currency: "INR",
       location: {
-        latitude: 18.5204,
-        longitude: 73.8567,
+        latitude: location.lat,
+        longitude: location.lng,
       },
-      priceType: "negotiable",
+      priceType: "fixed",
       skillIds: [],
       categoryIds: [],
-      jobDescription: "",
+      jobDescription: consumerStore.quickRequest.description,
       validOpenTill: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       requiredAt: "",
       budgetMin: 0,
@@ -63,6 +67,13 @@ export function PostJobForm() {
   }
 
   const priceType = form.watch("priceType")
+
+  useEffect(() => {
+    if (location) {
+      form.setValue("location.latitude", location.lat)
+      form.setValue("location.longitude", location.lng)
+    }
+  }, [location])
 
   return (
     <Form {...form}>
@@ -114,10 +125,10 @@ export function PostJobForm() {
             <FormItem>
               <FormLabel>Job Description</FormLabel>
               <FormControl>
-                <Textarea 
-                  placeholder="Describe the job in detail (e.g., Leaking tap in kitchen, needs replacement of washer)" 
+                <Textarea
+                  placeholder="Describe the job in detail (e.g., Leaking tap in kitchen, needs replacement of washer)"
                   className="min-h-[120px]"
-                  {...field} 
+                  {...field}
                 />
               </FormControl>
               <FormMessage />
@@ -130,6 +141,11 @@ export function PostJobForm() {
             <div className="flex items-center gap-2 mb-4 text-slate-500">
               <MapPin className="h-4 w-4" />
               <span className="text-sm font-medium">Location Details</span>
+              <GetLocation
+                cb={(lat, lng) => {
+                  form.setValue("location.latitude", lat);
+                  form.setValue("location.longitude", lng);
+                }} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <FormField
@@ -163,7 +179,7 @@ export function PostJobForm() {
         </Card>
 
         <div className="space-y-4">
-           <FormField
+          <FormField
             control={form.control}
             name="priceType"
             render={({ field }) => (
@@ -186,7 +202,7 @@ export function PostJobForm() {
             )}
           />
 
-          {(priceType === "fixed" || priceType === "range") && (
+          {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
               <FormField
                 control={form.control}
@@ -197,11 +213,11 @@ export function PostJobForm() {
                     <FormControl>
                       <div className="relative">
                         <IndianRupee className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
-                        <Input 
-                          type="number" 
-                          placeholder="0.00" 
-                          className="pl-9" 
-                          {...field} 
+                        <Input
+                          type="number"
+                          placeholder="0.00"
+                          className="pl-9"
+                          {...field}
                           onChange={e => field.onChange(parseFloat(e.target.value))}
                         />
                       </div>
@@ -210,7 +226,7 @@ export function PostJobForm() {
                   </FormItem>
                 )}
               />
-              
+
               {priceType === "range" && (
                 <FormField
                   control={form.control}
@@ -220,12 +236,12 @@ export function PostJobForm() {
                       <FormLabel>Max Budget</FormLabel>
                       <FormControl>
                         <div className="relative">
-                           <IndianRupee className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
-                           <Input 
-                            type="number" 
-                            placeholder="0.00" 
-                            className="pl-9" 
-                            {...field} 
+                          <IndianRupee className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
+                          <Input
+                            type="number"
+                            placeholder="0.00"
+                            className="pl-9"
+                            {...field}
                             onChange={e => field.onChange(parseFloat(e.target.value))}
                           />
                         </div>
@@ -236,11 +252,11 @@ export function PostJobForm() {
                 />
               )}
             </div>
-          )}
+          }
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-           <FormField
+          <FormField
             control={form.control}
             name="categoryIds"
             render={({ field }) => (
@@ -249,26 +265,26 @@ export function PostJobForm() {
                 <FormControl>
                   <div className="flex flex-wrap gap-2 p-2 border rounded-md min-h-[42px]">
                     {categories.length > 0 ? (
-                        categories.map(cat => (
-                            <label key={cat.id} className="flex items-center gap-2 px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-sm cursor-pointer hover:bg-slate-200">
-                                <input 
-                                    type="checkbox" 
-                                    value={cat.id}
-                                    checked={field.value.includes(cat.id)}
-                                    onChange={(e) => {
-                                        const val = e.target.value;
-                                        if (e.target.checked) {
-                                            field.onChange([...field.value, val]);
-                                        } else {
-                                            field.onChange(field.value.filter((v: string) => v !== val));
-                                        }
-                                    }}
-                                />
-                                {cat.name}
-                            </label>
-                        ))
+                      categories.map(cat => (
+                        <label key={cat.id} className="flex items-center gap-2 px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-sm cursor-pointer hover:bg-slate-200">
+                          <input
+                            type="checkbox"
+                            value={cat.id}
+                            checked={field.value.includes(cat.id)}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              if (e.target.checked) {
+                                field.onChange([...field.value, val]);
+                              } else {
+                                field.onChange(field.value.filter((v: string) => v !== val));
+                              }
+                            }}
+                          />
+                          {cat.name}
+                        </label>
+                      ))
                     ) : (
-                        <span className="text-xs text-slate-400">Loading categories...</span>
+                      <span className="text-xs text-slate-400">Loading categories...</span>
                     )}
                   </div>
                 </FormControl>
@@ -286,26 +302,26 @@ export function PostJobForm() {
                 <FormControl>
                   <div className="flex flex-wrap gap-2 p-2 border rounded-md min-h-[42px]">
                     {skills.length > 0 ? (
-                        skills.map(skill => (
-                            <label key={skill.id} className="flex items-center gap-2 px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-sm cursor-pointer hover:bg-slate-200">
-                                <input 
-                                    type="checkbox" 
-                                    value={skill.id}
-                                    checked={field.value.includes(skill.id)}
-                                    onChange={(e) => {
-                                        const val = e.target.value;
-                                        if (e.target.checked) {
-                                            field.onChange([...field.value, val]);
-                                        } else {
-                                            field.onChange(field.value.filter((v: string) => v !== val));
-                                        }
-                                    }}
-                                />
-                                {skill.name}
-                            </label>
-                        ))
+                      skills.map(skill => (
+                        <label key={skill.id} className="flex items-center gap-2 px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-sm cursor-pointer hover:bg-slate-200">
+                          <input
+                            type="checkbox"
+                            value={skill.id}
+                            checked={field.value.includes(skill.id)}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              if (e.target.checked) {
+                                field.onChange([...field.value, val]);
+                              } else {
+                                field.onChange(field.value.filter((v: string) => v !== val));
+                              }
+                            }}
+                          />
+                          {skill.name}
+                        </label>
+                      ))
                     ) : (
-                        <span className="text-xs text-slate-400">Loading skills...</span>
+                      <span className="text-xs text-slate-400">Loading skills...</span>
                     )}
                   </div>
                 </FormControl>

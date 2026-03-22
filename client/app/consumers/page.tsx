@@ -1,5 +1,6 @@
+"use client"
 import { redirect } from "next/navigation";
 
 export default function ConsumerRedirect() {
-  redirect("/consumers/my-jobs");
+  redirect("/consumers/quick-request");
 }
