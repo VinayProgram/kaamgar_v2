@@ -77,7 +77,7 @@ export function PostJobForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit, (errors) => console.log(errors))} className="space-y-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
             control={form.control}
@@ -206,7 +206,7 @@ export function PostJobForm() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
               <FormField
                 control={form.control}
-                name="budgetMin"
+                name={priceType === "range" ? "budgetMin" : "budgetMax"}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>{priceType === "range" ? "Min Budget" : "Budget"}</FormLabel>

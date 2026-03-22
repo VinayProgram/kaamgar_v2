@@ -21,14 +21,6 @@ export const postJobSchema = z.object({
   skillIds: z.array(z.string().uuid()).min(1, "At least one skill is required"),
   categoryIds: z.array(z.string().uuid()).min(1, "At least one category is required"),
 }).refine(data => {
-  if (data.priceType === 'range' || data.priceType === 'fixed') {
-    return data.budgetMin !== undefined && data.budgetMin > 0;
-  }
-  return true;
-}, {
-  message: "Budget is required for fixed or range price types",
-  path: ["budgetMin"]
-}).refine(data => {
   if (data.priceType === 'range') {
     return data.budgetMax !== undefined && data.budgetMax >= (data.budgetMin || 0);
   }

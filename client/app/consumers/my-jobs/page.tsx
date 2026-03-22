@@ -77,7 +77,7 @@ export default function MyJobsPostedPage() {
                       </div>
                       <div className="text-right shrink-0">
                         <p className="text-lg font-bold text-slate-900 dark:text-slate-50 capitalize">
-                          {job.priceType === 'negotiable' ? 'Negotiable' : `${job.currency} ${job.budgetMin}`}
+                          {job.priceType === 'negotiable' ? 'Negotiable' : `${job.currency} ${job.budgetMax}`}
                         </p>
                         <p className="text-[10px] text-slate-400 font-medium">ESTIMATED BUDGET</p>
                       </div>
