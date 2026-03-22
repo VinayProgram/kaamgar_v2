@@ -5,20 +5,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ArrowLeft, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { PostJobForm } from "../../_components/post-job-form"
-import { useGetJobById } from "../../hooks"
+import { useGetJobById, useUpdateJob } from "../../hooks"
 import { useConsumerStore } from "@/app/consumers/store/consumer-store"
 import { Suspense, useEffect } from "react"
 import { CreateJobDto } from "../../dto"
+import { PostJobValues } from "../../schema"
 // Assuming we'll have a hook to fetch a single job by ID
 // import { useJobDetails } from "../../my-jobs/hooks" 
 
 export default function EditJobPage() {
   const params = useParams()
   const id = params.id as string
-  const router = useRouter()
   const { data: job, isLoading } = useGetJobById(id)
   const consumerStore = useConsumerStore()
-
+  const updateJobMutation = useUpdateJob()
   useEffect(() => {
     if (job && job.length > 0) {
       const firstJob = job[0].job_requests
@@ -39,10 +39,14 @@ export default function EditJobPage() {
         categoryIds: job.map((item) => item.job_request_categories.categoryId).filter(Boolean),
         requiredAt: firstJob.requiredAt || "",
       }
-      
+
       consumerStore.setQuickRequest(jobData)
     }
   }, [job])
+
+  const cb = (values: PostJobValues) => {
+    updateJobMutation.mutate({ data: values, id })
+  }
   return (
     <div className="space-y-6 max-w-3xl mx-auto pb-12">
       <div className="flex items-center justify-between">
@@ -71,7 +75,7 @@ export default function EditJobPage() {
 
           {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> :
             <Suspense fallback={<div>Loading...</div>} >
-              <PostJobForm />
+              <PostJobForm cb={cb} isEdit={true} />
             </Suspense>}
         </CardContent>
       </Card>

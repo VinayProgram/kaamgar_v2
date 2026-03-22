@@ -33,12 +33,11 @@ import GetLocation, { useGetLocationHook } from "@/components/common/get-locatio
 import { useEffect, useRef } from "react"
 import { useConsumerStore } from "../../store/consumer-store"
 
-export function PostJobForm() {
+export function PostJobForm({ cb, isEdit = false }: { cb: (values: PostJobValues) => void, isEdit?: boolean }) {
   const router = useRouter()
   // Hooks
   const { data: skills = [] } = useSkills()
   const { data: categories = [] } = useCategories()
-  const postJobMutation = useCreateJob()
   const location = useGetLocationHook()
   const quickRequest = useConsumerStore((state) => state.quickRequest)
   console.log("hello", quickRequest)
@@ -76,7 +75,7 @@ export function PostJobForm() {
   }, [quickRequest, form.reset])
 
   async function onSubmit(values: PostJobValues) {
-    postJobMutation.mutate(values)
+    cb(values)
   }
 
   const priceType = form.watch("priceType")
@@ -347,15 +346,8 @@ export function PostJobForm() {
           />
         </div>
 
-        <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 h-12" disabled={postJobMutation.isPending}>
-          {postJobMutation.isPending ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Posting Job...
-            </>
-          ) : (
-            "Post Job Request"
-          )}
+        <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 h-12" >
+          {isEdit ? "Update Job Request" : "Post Job Request"}
         </Button>
       </form>
     </Form>

@@ -5,8 +5,15 @@ import { PostJobForm } from "./_components/post-job-form"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { PostJobValues } from "./schema"
+import { useCreateJob } from "./hooks"
 
 export default function PostNewJobPage() {
+  const postJobMutation = useCreateJob()
+
+  const cb = (values: PostJobValues) => {
+    postJobMutation.mutate(values)
+  }
   return (
     <div className="space-y-6 max-w-3xl mx-auto pb-12">
       <div className="flex items-center justify-between">
@@ -28,7 +35,7 @@ export default function PostNewJobPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="p-6">
-          <PostJobForm />
+          <PostJobForm cb={cb} isEdit={false} />
         </CardContent>
       </Card>
     </div>

@@ -6,6 +6,11 @@ export const postJob = async (data: CreateJobDto): Promise<PostJobResponse> => {
   return response.data;
 };
 
+export const updateJob = async (data: CreateJobDto, id: string): Promise<PostJobResponse> => {
+  const response = await api.put<PostJobResponse>(`/jobs/${id}/update`, data);
+  return response.data;
+};
+
 export const getJobById = async (jobId: string): Promise<JobRequestResponseById[]> => {
   const response = await api.get<JobRequestResponseById[]>(`/jobs/${jobId}`);
   return response.data;

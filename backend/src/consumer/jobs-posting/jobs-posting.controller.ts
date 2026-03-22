@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UsePipes, UseGuards, Request, Get } from '@nestjs/common';
+import { Controller, Post, Body, UsePipes, UseGuards, Request, Get, Put } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { JobsPostingService } from './jobs-posting.service';
 import { CreateJobDto, CreateJobSchema } from './dto/create-job.dto';
@@ -26,7 +26,7 @@ export class JobsPostingController {
     return this.jobsPostingService.getConsumerJobs(consumerUserId);
   }
 
-  @Post(':id/update')
+  @Put(':id/update')
   @ApiOperation({ summary: 'Update an existing job request' })
   @UsePipes(new ZodValidationPipe(CreateJobSchema))
   async updateJob(
