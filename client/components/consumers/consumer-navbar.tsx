@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { PlusCircle, ListTodo, User, Settings, Zap } from "lucide-react"
+import { PlusCircle, ListTodo, User, Settings, Zap, Search } from "lucide-react"
 
 export function ConsumerNavbar() {
   const pathname = usePathname()
@@ -13,6 +13,11 @@ export function ConsumerNavbar() {
       name: "My Jobs Posted",
       href: "/consumers/my-jobs",
       icon: ListTodo,
+    },
+    {
+      name: "Find Services",
+      href: "/consumers/find-service-providers",
+      icon: Search,
     },
     {
       name: "Post a New Job",
