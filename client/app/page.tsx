@@ -77,10 +77,10 @@ export default function Home() {
                      <div className="relative animate-in fade-in zoom-in-95 duration-1000 delay-200 ease-out">
                         <div className="relative h-[480px] w-full rounded-3xl bg-brand-navy-light/10 overflow-hidden shadow-2xl border-4 border-white ring-1 ring-brand-navy/5">
                            <Image
-                              src="/kaamgar_hero_illustration_1772294512100.png"
+                              src="/logo.png"
                               alt="Kaamgar Service Illustration"
                               fill
-                              className="object-cover"
+                              className="object-contain"
                            />
                         </div>
                         {/* Floating Card */}
