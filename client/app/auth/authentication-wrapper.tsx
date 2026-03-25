@@ -28,7 +28,7 @@ export default function AuthenticationWrapper({
       } else {
         setUser(userData);
         const registrationType = userData.registrationType;
-        
+
         if (registrationType === "user" && requiredRole === "service_provider") {
           router.push("/consumers");
         } else if (registrationType === "service_provider" && requiredRole === "user") {

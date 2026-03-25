@@ -21,7 +21,7 @@ export const useSignIn = (userType: "user" | "service_provider") => {
     mutationFn: signin,
     onSuccess: (response) => {
       if (response) {
-        setUser(response.user || response);
+        setUser(response || response);
         router.push(userType === "user" ? "/consumers" : "/service-provider");
       }
     },
@@ -39,7 +39,7 @@ export const useSignUp = (userType: "user" | "service_provider") => {
     mutationFn: signup,
     onSuccess: (response) => {
       if (response) {
-        setUser(response.user || response);
+        setUser(response || response);
         router.push(userType === "user" ? "/consumers" : "/service-provider");
       }
     },

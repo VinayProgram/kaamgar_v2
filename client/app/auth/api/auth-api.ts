@@ -2,13 +2,13 @@ import api from "@/lib/api";
 import { RegisterUserDto, LoginDto, AuthResponse } from "./dto";
 import { UserType } from "../dto/user";
 
-export const signup = async (data: RegisterUserDto): Promise<AuthResponse> => {
-    const response = await api.post<AuthResponse>("/auth/register", data);
+export const signup = async (data: RegisterUserDto): Promise<any> => {
+    const response = await api.post<any>("/auth/register", data);
     return response.data;
 };
 
-export const signin = async (data: LoginDto): Promise<AuthResponse> => {
-    const response = await api.post<AuthResponse>("/auth/login", data);
+export const signin = async (data: LoginDto): Promise<any> => {
+    const response = await api.post<any>("/auth/login", data);
     return response.data;
 };
 
