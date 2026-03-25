@@ -4,7 +4,7 @@ import { DatabaseConnectionModule } from './db/database-connection.module';
 import { AuthGuard } from './common/guards/auth.guard';
 import { AuthCoreModule } from './core/auth-core/auth-core.module';
 import { AuthModule } from './auth/Auth.module';
-import { ConsumerModule } from './consumer/Consumer.module';
+import { ConsumerModule } from './consumer/consumer.module';
 import { SkillsCategoriesModule } from './skills-categories/skills-categories.module';
 import { ServiceProviderModule } from './service-provider/service-provider.module';
 
